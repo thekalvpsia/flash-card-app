@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 from yt_dlp import YoutubeDL
@@ -13,8 +13,8 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/')
-def home():
-    return "AI Flashcard Generator Backend is running!"
+def index():
+    return render_template('index.html')
 
 def fetch_subtitles(youtube_link):
     """Fetch subtitles from a YouTube video using yt-dlp."""
@@ -44,8 +44,8 @@ def parse_vtt_to_text(vtt_content):
     lines = vtt_content.splitlines()
     text = []
     for line in lines:
-        # Skip metadata lines (timestamps and empty lines)
-        if '-->' not in line and line.strip():
+        # Skip lines with timestamps, metadata, or irrelevant text
+        if '-->' not in line and line.strip() and not line.lower().startswith("caption"):
             text.append(line.strip())
     return ' '.join(text)  # Combine all text into a single string
 
@@ -78,7 +78,7 @@ def generate_flashcards():
         # Define the prompt for the ChatGPT model
         messages = [
             {"role": "developer", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Generate flashcards in JSON format with 'question' and 'answer' fields based on the following content. Provide only the JSON array as output, without any additional text:\n\n{video_content}"}
+            {"role": "user", "content": f"Generate flashcards in JSON format with 'question' and 'answer' fields based on the provided content. Focus only on meaningful and educational content. Ignore irrelevant or repeated lines:\n\n{video_content}"}
         ]
 
         # Call the OpenAI API to generate flashcards
