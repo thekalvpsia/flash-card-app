@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container" id="flashcard-container">
+        <!-- Flashcard Viewer -->
+        <div class="flashcard-wrapper">
+            <div class="flashcard" id="flashcard">
+                <div class="front" id="flashcard-question">Loading...</div>
+                <div class="back" id="flashcard-answer">Answer</div>
+            </div>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <div class="navigation">
+            <span class="arrow" id="prev-btn">&#8592;</span>
+            <span class="arrow" id="next-btn">&#8594;</span>
+        </div>
+
+        <!-- Flashcard List -->
+        <div class="flashcard-list">
+            <h3>All Flashcards</h3>
+            <ul id="flashcard-list">
+                <!-- Flashcards will be dynamically loaded here -->
+            </ul>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
