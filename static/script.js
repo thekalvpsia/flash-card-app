@@ -49,6 +49,10 @@ function updateFlashcard() {
     document.getElementById("flashcard-question").innerText = flashcard.question;
     document.getElementById("flashcard-answer").innerText = flashcard.answer;
 
+    // Reset the card to the front
+    const flashcardElement = document.getElementById("flashcard");
+    flashcardElement.classList.remove("flip");
+
     document.getElementById("prev-btn").style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
     document.getElementById("next-btn").style.visibility = currentIndex === flashcards.length - 1 ? 'hidden' : 'visible';
 }
@@ -73,3 +77,8 @@ document.getElementById("next-btn").addEventListener("click", () => {
         updateFlashcard();
     }
 });
+
+// Navigate back to the home screen
+function goBack() {
+    window.location.href = "/";
+}
