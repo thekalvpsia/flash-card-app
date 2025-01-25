@@ -114,18 +114,27 @@ h1 {
 /* Navigation Arrows */
 .navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    max-width: 400px;
-    margin: 0 auto;
+    gap: 20px;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .arrow {
     font-size: 36px;
     cursor: pointer;
     color: #007BFF;
+    background-color: white;
+    border: 2px solid #ccc;
+    padding: 5px 15px;
+    border-radius: 50%;
     user-select: none;
+}
+
+.arrow:hover {
+    border-color: #007BFF;
+    background-color: #f0f8ff;
 }
 
 .arrow:disabled {
@@ -152,36 +161,22 @@ h1 {
     border-bottom: 1px solid #ddd;
 }
 
-/* Back Button */
-.back-btn {
+/* Generic Button Styling */
+button {
     font-size: 16px;
     padding: 10px 20px;
-    border: none;
-    background-color: #007BFF;
-    color: #fff;
-    border-radius: 5px;
+    border: 2px solid #ccc;
+    background-color: white;
+    color: #333;
+    border-radius: 25px;
     cursor: pointer;
-    margin-bottom: 20px;
-    display: inline-block;
+    transition: all 0.3s ease;
 }
 
-.back-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Save Button */
-.save-btn {
-    font-size: 16px;
-    padding: 10px 20px;
-    border: none;
-    background-color: #28a745;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    display: inline-block;
-}
-
+/* Back and Save Buttons */
+.back-btn:hover,
 .save-btn:hover {
-    background-color: #218838;
+    background-color: #333;
+    color: white;
+    border-color: #333;
 }
