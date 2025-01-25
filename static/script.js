@@ -82,3 +82,19 @@ document.getElementById("next-btn").addEventListener("click", () => {
 function goBack() {
     window.location.href = "/";
 }
+
+// Save flashcards as a JSON file
+function saveFlashcards() {
+    if (flashcards.length === 0) {
+        alert("No flashcards to save.");
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(flashcards, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "flashcards.json";
+    link.click();
+    URL.revokeObjectURL(url); // Clean up
+}

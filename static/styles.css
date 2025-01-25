@@ -168,3 +168,20 @@ h1 {
 .back-btn:hover {
     background-color: #0056b3;
 }
+
+/* Save Button */
+.save-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.save-btn:hover {
+    background-color: #218838;
+}
