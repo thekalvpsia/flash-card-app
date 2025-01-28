@@ -1,44 +1,45 @@
 const flashcards = []; // Will store flashcards dynamically
 let currentIndex = 0;
 
-// Check for flashcards in localStorage
+// Check if new flashcards need to be generated
+const youtubeLink = localStorage.getItem("youtubeLink");
 const savedFlashcards = localStorage.getItem("flashcards");
-if (savedFlashcards) {
-    flashcards.push(...JSON.parse(savedFlashcards));
-    localStorage.removeItem("flashcards"); // Clear stored flashcards after loading
-    updateFlashcard();
-    populateFlashcardList();
-} else {
-    // Load the YouTube link from localStorage
-    const youtubeLink = localStorage.getItem("youtubeLink");
 
-    if (!youtubeLink) {
-        alert("No YouTube link found. Redirecting to the home page.");
-        window.location.href = "/";
-    }
-
-    // Fetch flashcards from the backend
+if (youtubeLink) {
+    // Fetch new flashcards from the backend
     fetch('/generate', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ link: youtubeLink })
+        body: JSON.stringify({ link: youtubeLink }),
     })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             if (data.flashcards) {
-                flashcards.push(...data.flashcards);
+                flashcards.length = 0; // Clear existing flashcards array
+                flashcards.push(...data.flashcards); // Load new flashcards
+                localStorage.setItem("flashcards", JSON.stringify(flashcards)); // Save new flashcards
+                localStorage.removeItem("youtubeLink"); // Clear the link from localStorage
                 updateFlashcard();
                 populateFlashcardList();
             } else {
                 alert("Error: Unable to generate flashcards.");
             }
         })
-        .catch(error => {
+        .catch((error) => {
             console.error("Error fetching flashcards:", error);
             alert("An error occurred while generating flashcards. Please try again.");
         });
+} else if (savedFlashcards) {
+    // Load flashcards from localStorage
+    flashcards.push(...JSON.parse(savedFlashcards));
+    updateFlashcard();
+    populateFlashcardList();
+} else {
+    // Redirect to home if no flashcards or link are available
+    alert("No flashcards or YouTube link found. Redirecting to the home page.");
+    window.location.href = "/";
 }
 
 // Update flashcard display

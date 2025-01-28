@@ -38,6 +38,9 @@
             const youtubeLink = document.getElementById("youtube-link").value;
 
             if (youtubeLink) {
+                // Clear old flashcards from localStorage
+                localStorage.removeItem("flashcards");
+                
                 // Save the link in localStorage to use on the new page
                 localStorage.setItem("youtubeLink", youtubeLink);
 
