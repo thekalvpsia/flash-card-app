@@ -1,47 +1,45 @@
 const flashcards = []; // Will store flashcards dynamically
 let currentIndex = 0;
 
-// Load the YouTube link from localStorage
-const youtubeLink = localStorage.getItem("youtubeLink");
+// Check for flashcards in localStorage
+const savedFlashcards = localStorage.getItem("flashcards");
+if (savedFlashcards) {
+    flashcards.push(...JSON.parse(savedFlashcards));
+    localStorage.removeItem("flashcards"); // Clear stored flashcards after loading
+    updateFlashcard();
+    populateFlashcardList();
+} else {
+    // Load the YouTube link from localStorage
+    const youtubeLink = localStorage.getItem("youtubeLink");
 
-if (!youtubeLink) {
-    alert("No YouTube link found. Redirecting to the home page.");
-    window.location.href = "/";
-}
+    if (!youtubeLink) {
+        alert("No YouTube link found. Redirecting to the home page.");
+        window.location.href = "/";
+    }
 
-// Fetch flashcards from the backend
-fetch('/generate', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ link: youtubeLink })
-})
-    .then(response => response.json())
-    .then(data => {
-        if (data.flashcards) {
-            // Clear and load new flashcards
-            flashcards.push(...data.flashcards);
-
-            // Update the flashcard viewer
-            updateFlashcard();
-
-            // Populate the flashcard list
-            const list = document.getElementById("flashcard-list");
-            list.innerHTML = ""; // Clear existing list
-            flashcards.forEach(card => {
-                const li = document.createElement("li");
-                li.innerHTML = `<strong>Q:</strong> ${card.question}<br><strong>A:</strong> ${card.answer}`;
-                list.appendChild(li);
-            });
-        } else {
-            alert("Error: Unable to generate flashcards.");
-        }
+    // Fetch flashcards from the backend
+    fetch('/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ link: youtubeLink })
     })
-    .catch(error => {
-        console.error("Error fetching flashcards:", error);
-        alert("An error occurred while generating flashcards. Please try again.");
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.flashcards) {
+                flashcards.push(...data.flashcards);
+                updateFlashcard();
+                populateFlashcardList();
+            } else {
+                alert("Error: Unable to generate flashcards.");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching flashcards:", error);
+            alert("An error occurred while generating flashcards. Please try again.");
+        });
+}
 
 // Update flashcard display
 function updateFlashcard() {
@@ -55,6 +53,17 @@ function updateFlashcard() {
 
     document.getElementById("prev-btn").style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
     document.getElementById("next-btn").style.visibility = currentIndex === flashcards.length - 1 ? 'hidden' : 'visible';
+}
+
+// Populate the flashcard list at the bottom
+function populateFlashcardList() {
+    const list = document.getElementById("flashcard-list");
+    list.innerHTML = ""; // Clear existing list
+    flashcards.forEach(card => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>Q:</strong> ${card.question}<br><strong>A:</strong> ${card.answer}`;
+        list.appendChild(li);
+    });
 }
 
 // Flip flashcard on click

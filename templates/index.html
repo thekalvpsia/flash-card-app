@@ -8,6 +8,7 @@
 </head>
 <body class="home-page">
     <h1 class="title">AI Flashcard Generator</h1>
+
     <div class="center-container">
         <!-- Form for YouTube Link -->
         <div id="link-form">
@@ -22,6 +23,13 @@
             </form>
         </div>
     </div>
+
+    <!-- Load Flashcard File Section -->
+    <div class="load-flashcard-container">
+        <p>You can also load an existing flashcard file to view your saved flashcards.</p>
+        <input type="file" id="load-flashcard-file" accept=".json" />
+    </div>
+    
     <script>
         // Redirect to the flashcards page on form submission
         document.getElementById("generate-form").addEventListener("submit", (e) => {
@@ -37,6 +45,20 @@
                 window.location.href = "/flashcards";
             } else {
                 alert("Please enter a valid YouTube link.");
+            }
+        });
+
+        // Handle loading a flashcard file
+        document.getElementById("load-flashcard-file").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const flashcards = JSON.parse(event.target.result);
+                    localStorage.setItem("flashcards", JSON.stringify(flashcards));
+                    window.location.href = "/flashcards";
+                };
+                reader.readAsText(file);
             }
         });
     </script>
