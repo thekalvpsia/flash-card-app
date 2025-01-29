@@ -30,7 +30,11 @@ if (youtubeLink) {
     })
         .then((response) => response.json())
         .then((data) => {
-            if (data.flashcards) {
+            if (data.error) {
+                throw new Error(data.error); // Trigger the catch block for errors
+            }
+            
+            if (data.flashcards && data.flashcards.length > 0) {
                 flashcards.length = 0; // Clear existing flashcards array
                 flashcards.push(...data.flashcards); // Load new flashcards
                 localStorage.setItem("flashcards", JSON.stringify(flashcards)); // Save new flashcards
@@ -38,12 +42,14 @@ if (youtubeLink) {
                 updateFlashcard();
                 populateFlashcardList();
             } else {
-                alert("Error: Unable to generate flashcards.");
+                throw new Error("No flashcards generated. Please check your input.");
             }
         })
         .catch((error) => {
             console.error("Error fetching flashcards:", error);
-            alert("An error occurred while generating flashcards. Please try again.");
+            alert(error.message);
+            localStorage.removeItem("youtubeLink"); // Remove invalid link
+            window.location.href = "/"; // Redirect back to home
         })
         .finally(() => {
             hideLoadingScreen(); // Hide the loading screen

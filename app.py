@@ -111,7 +111,10 @@ def generate_flashcards():
         return jsonify({"flashcards": flashcards})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        error_message = str(e)
+        if "not a valid URL" in error_message:
+            return jsonify({"error": "Invalid link detected. Please enter a valid YouTube URL."}), 400
+        return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
