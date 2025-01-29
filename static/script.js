@@ -1,11 +1,25 @@
 const flashcards = []; // Will store flashcards dynamically
 let currentIndex = 0;
 
+// Show the loading screen and hide the flashcard content
+function showLoadingScreen() {
+    document.getElementById("loading-screen").classList.remove("hidden");
+    document.getElementById("flashcard-container").classList.add("hidden");
+}
+
+// Hide the loading screen and show the flashcard content
+function hideLoadingScreen() {
+    document.getElementById("loading-screen").classList.add("hidden");
+    document.getElementById("flashcard-container").classList.remove("hidden");
+}
+
 // Check if new flashcards need to be generated
 const youtubeLink = localStorage.getItem("youtubeLink");
 const savedFlashcards = localStorage.getItem("flashcards");
 
 if (youtubeLink) {
+    showLoadingScreen(); // Show the loading screen
+    
     // Fetch new flashcards from the backend
     fetch('/generate', {
         method: 'POST',
@@ -30,12 +44,16 @@ if (youtubeLink) {
         .catch((error) => {
             console.error("Error fetching flashcards:", error);
             alert("An error occurred while generating flashcards. Please try again.");
+        })
+        .finally(() => {
+            hideLoadingScreen(); // Hide the loading screen
         });
 } else if (savedFlashcards) {
     // Load flashcards from localStorage
     flashcards.push(...JSON.parse(savedFlashcards));
     updateFlashcard();
     populateFlashcardList();
+    hideLoadingScreen(); // Ensure flashcard content is visible if loaded from storage
 } else {
     // Redirect to home if no flashcards or link are available
     alert("No flashcards or YouTube link found. Redirecting to the home page.");
