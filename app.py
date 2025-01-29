@@ -16,6 +16,10 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def index():
     return render_template('index.html')
 
+@app.route('/flashcards')
+def flashcards_page():
+    return render_template('flashcards.html')
+
 def fetch_subtitles(youtube_link):
     """Fetch subtitles from a YouTube video using yt-dlp."""
     ydl_opts = {
@@ -63,8 +67,17 @@ def generate_flashcards():
     try:
         # Get the YouTube link from the request
         data = request.get_json()
-        youtube_link = data.get('link')
 
+        # Check if the request contains uploaded flashcards
+        flashcards = data.get('flashcards')
+        if flashcards:
+            # Validate the flashcards format
+            if not isinstance(flashcards, list) or not all('question' in card and 'answer' in card for card in flashcards):
+                return jsonify({"error": "Invalid flashcard format"}), 400
+            return jsonify({"flashcards": flashcards})
+
+        # Check if the request contains a YouTube link
+        youtube_link = data.get('link')
         if not youtube_link:
             return jsonify({"error": "YouTube link is required"}), 400
 
