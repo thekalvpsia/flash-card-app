@@ -62,6 +62,22 @@ def extract_json_from_response(response_text):
         return json.loads(json_str)  # Convert to Python object
     raise ValueError("No JSON found in response")
 
+def get_video_duration(youtube_link):
+    """Retrieve the duration of a YouTube video in seconds."""
+    ydl_opts = {
+        'quiet': True,
+        'skip_download': True,
+        'force_generic_extractor': False,
+    }
+
+    try:
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_link, download=False)
+            duration = info.get("duration", 0)  # Duration in seconds
+            return duration
+    except Exception:
+        return None  # Unable to retrieve duration
+
 @app.route('/generate', methods=['POST'])
 def generate_flashcards():
     try:
@@ -80,6 +96,13 @@ def generate_flashcards():
         youtube_link = data.get('link')
         if not youtube_link:
             return jsonify({"error": "YouTube link is required"}), 400
+
+        # Check video duration
+        duration = get_video_duration(youtube_link)
+        if duration is None:
+            return jsonify({"error": "Unable to determine video duration. Please try a different link."}), 400
+        if duration > 1200:  # 1200 seconds = 20 minutes
+            return jsonify({"error": "Video too long. Please provide a video that is 20 minutes or shorter."}), 400
 
         # Fetch and parse subtitles
         vtt_content = fetch_subtitles(youtube_link)
