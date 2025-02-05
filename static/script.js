@@ -76,6 +76,9 @@ function updateFlashcard() {
     const flashcardElement = document.getElementById("flashcard");
     flashcardElement.classList.remove("flip");
 
+    // Update flashcard counter
+    document.getElementById("flashcard-counter").innerText = `${currentIndex + 1}/${flashcards.length}`;
+
     document.getElementById("prev-btn").style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
     document.getElementById("next-btn").style.visibility = currentIndex === flashcards.length - 1 ? 'hidden' : 'visible';
 }

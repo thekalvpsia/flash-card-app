@@ -260,3 +260,9 @@ button {
     }
 }
 
+#flashcard-counter {
+    min-width: 50px;
+    text-align: center;
+    font-size: 18px;
+    color: #333;
+}
