@@ -266,3 +266,11 @@ button {
     font-size: 18px;
     color: #333;
 }
+
+.video-icon {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto -10px;
+    opacity: 0.8;
+}
