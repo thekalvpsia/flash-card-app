@@ -20,8 +20,8 @@ def index():
 def flashcards_page():
     return render_template('flashcards.html')
 
-def fetch_subtitles(youtube_link):
-    """Fetch subtitles from a YouTube video using yt-dlp."""
+def fetch_video_metadata(youtube_link):
+    """Retrieve both video duration and subtitles in a single yt-dlp call."""
     ydl_opts = {
         'skip_download': True,
         'writesubtitles': True,
@@ -29,19 +29,20 @@ def fetch_subtitles(youtube_link):
         'quiet': True,
     }
 
-    with YoutubeDL(ydl_opts) as ydl:
-        result = ydl.extract_info(youtube_link, download=False)
-        subtitles = result.get('subtitles')
+    try:
+        with YoutubeDL(ydl_opts) as ydl:
+            result = ydl.extract_info(youtube_link, download=False)
 
-        if subtitles and 'en' in subtitles:  # Check for English subtitles
-            # Get the URL of the subtitle file
-            subtitle_url = subtitles['en'][0]['url']
+            # Get video duration in seconds
+            duration = result.get("duration", 0)
 
-            # Fetch the subtitle content
-            response = requests.get(subtitle_url)
-            if response.status_code == 200:
-                return response.text  # Return the raw subtitle content
-        return None  # Return None if subtitles are unavailable
+            # Extract subtitle URL if available
+            subtitles = result.get('subtitles', {}).get('en', [])
+            subtitle_url = subtitles[0]['url'] if subtitles else None
+
+            return {"duration": duration, "subtitle_url": subtitle_url}
+    except Exception:
+        return None  # Unable to retrieve metadata
 
 def parse_vtt_to_text(vtt_content):
     """Parse VTT subtitle content into plain text."""
@@ -54,29 +55,13 @@ def parse_vtt_to_text(vtt_content):
     return ' '.join(text)  # Combine all text into a single string
 
 def extract_json_from_response(response_text):
-    """Backend preprocessing."""
+    """Extract and validate JSON from AI response."""
     start_index = response_text.find('[')  # Find the start of the JSON array
     end_index = response_text.rfind(']')  # Find the end of the JSON array
     if start_index != -1 and end_index != -1:
         json_str = response_text[start_index:end_index + 1]
         return json.loads(json_str)  # Convert to Python object
     raise ValueError("No JSON found in response")
-
-def get_video_duration(youtube_link):
-    """Retrieve the duration of a YouTube video in seconds."""
-    ydl_opts = {
-        'quiet': True,
-        'skip_download': True,
-        'force_generic_extractor': False,
-    }
-
-    try:
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_link, download=False)
-            duration = info.get("duration", 0)  # Duration in seconds
-            return duration
-    except Exception:
-        return None  # Unable to retrieve duration
 
 @app.route('/generate', methods=['POST'])
 def generate_flashcards():
@@ -97,18 +82,26 @@ def generate_flashcards():
         if not youtube_link:
             return jsonify({"error": "YouTube link is required"}), 400
 
-        # Check video duration
-        duration = get_video_duration(youtube_link)
-        if duration is None:
-            return jsonify({"error": "Unable to determine video duration. Please try a different link."}), 400
-        if duration > 1200:  # 1200 seconds = 20 minutes
+        # Fetch video metadata (duration + subtitles)
+        metadata = fetch_video_metadata(youtube_link)
+        if not metadata:
+            return jsonify({"error": "Unable to retrieve video data. Please try a different link."}), 400
+
+        # Check video duration limit (20 minutes)
+        if metadata["duration"] > 1200:  # 1200 seconds = 20 minutes
             return jsonify({"error": "Video too long. Please provide a video that is 20 minutes or shorter."}), 400
 
-        # Fetch and parse subtitles
-        vtt_content = fetch_subtitles(youtube_link)
-        if not vtt_content:
-            return jsonify({"error": "Subtitles not available for this video"}), 404
+        # Check if subtitles are available
+        subtitle_url = metadata["subtitle_url"]
+        if not subtitle_url:
+            return jsonify({"error": "No subtitles found. Please try a different video."}), 404
 
+        # Fetch and parse subtitles
+        response = requests.get(subtitle_url)
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to retrieve subtitles. Please try again."}), 400
+
+        vtt_content = response.text
         video_content = parse_vtt_to_text(vtt_content)
 
         # Define the prompt for the ChatGPT model
