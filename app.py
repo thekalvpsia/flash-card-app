@@ -27,6 +27,7 @@ def fetch_video_metadata(youtube_link):
         'writesubtitles': True,
         'subtitlesformat': 'vtt',
         'quiet': True,
+        'force_generic_extractor': True
     }
 
     try:
